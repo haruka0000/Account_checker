@@ -14,6 +14,7 @@
 import json
 from twitter import *
 import Word
+import GetImage
 #import urllib
 import urllib.request, os
 
@@ -36,22 +37,7 @@ for x in followers['users']:
   user['false_percent'] = 0
   user['profile_text'] = x['description']
   user['followers_count'] = x['followers_count']
-  print(user['image_url'])
-  #OpenerDirectorオブジェクト生成
-  opener = urllib.request.build_opener()
-  #オープン
-  httpres = opener.open(user['image_url'])
-  #print(httpres.getheaders()) #debug
-  #ファイルサイズ
-  sz = int(httpres.getheader('Content-Length'))
-  #取得
-  b = httpres.read()
-  #保存先パス
-  save_file = os.path.join('./pictures/', user['screen_name'])
-  #保存
-  with open(save_file, 'wb') as fpw:
-    fpw.write(b)
-  
+  GetImage.saveImage(user['image_url'], user['screen_name'], "./pictures/followers")
   followers_list.append(user)
   
 for u in followers_list:
@@ -71,6 +57,7 @@ for u in followers_list:
       print('  ' + same_name['name'] + '@' + same_name['screen_name'] + " " + str(same_name['followers_count']) + " [本物?]")
       print('  ' + u['name'] + '@' + u['screen_name'] + " " + " [偽物かも?]")
       print("  -> 画像判別：　未実装")
+      GetImage.saveImage(same_name['profile_image_url_https'], same_name['screen_name'], "./pictures/same_name_users")
       u['false_percent']  = u['false_percent'] + Word.wordCompare(u['profile_text'],same_name['description'])
       print("  -> 文字判別：　" + str(u['false_percent']) + "%")
       print("  -> その他：　未実装")
