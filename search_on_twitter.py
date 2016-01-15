@@ -14,7 +14,8 @@
 import json
 from twitter import *
 import Word
-
+#import urllib
+import urllib.request, os
 
 # OAuth2.0用のキーを取得する
 with open("secret.json") as f:
@@ -35,6 +36,22 @@ for x in followers['users']:
   user['false_percent'] = 0
   user['profile_text'] = x['description']
   user['followers_count'] = x['followers_count']
+  print(user['image_url'])
+  #OpenerDirectorオブジェクト生成
+  opener = urllib.request.build_opener()
+  #オープン
+  httpres = opener.open(user['image_url'])
+  #print(httpres.getheaders()) #debug
+  #ファイルサイズ
+  sz = int(httpres.getheader('Content-Length'))
+  #取得
+  b = httpres.read()
+  #保存先パス
+  save_file = os.path.join('./pictures/', user['screen_name'])
+  #保存
+  with open(save_file, 'wb') as fpw:
+    fpw.write(b)
+  
   followers_list.append(user)
   
 for u in followers_list:
@@ -60,4 +77,7 @@ for u in followers_list:
   print('---------------------------------------------------')
   pass
 #print(followers_list)
+
+
+
 
