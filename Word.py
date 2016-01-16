@@ -10,7 +10,7 @@ def wordCompare(word1,word2):
     word_group1 = set(trim(w_list1)).difference([",",".","、","。"])
     word_group2 = set(trim(w_list2)).difference([",",".","、","。"])
     match_count = len(word_group1.intersection(word_group2))
-    print("Count" + str(match_count))
+    print("    一致文字数: " + str(match_count) + "個")
     if match_count == 2:
       return 10
     elif match_count == 3:
@@ -21,6 +21,8 @@ def wordCompare(word1,word2):
       return 60
     else:
       return 0
+
+######################################################################
 
 def trim(words):
   n_word_list = []
@@ -40,6 +42,6 @@ def trim(words):
           n_word_list[len(n_word_list)-1] = c2[0] + c1[0]
       elif "名詞" in c1[3]:
         n_word_list.append(c1[0])
-  print(n_word_list)
+#  print(n_word_list)
   return n_word_list
 
