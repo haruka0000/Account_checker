@@ -17,6 +17,38 @@ import Word
 import Image
 #import urllib
 import urllib.request, os
+import sqlite3
+
+db = sqlite3.connect('./db/users.db')
+cursor = db.cursor()
+
+sql_create = " ".join((
+          "CREATE TABLE followers (",
+          "user_name text,",
+          "screen_name text,",
+          "image_url text,",
+          "false_percent integer,",
+          "profile_text text,",
+          "followers_count integer,",
+          "profile_image binary",
+          ");"))
+sql_insert_f = " ".join((
+                "INSERT INTO followers (",
+                "user_name,",
+                "screen_name,",
+                "image_url,",
+                "false_percent,",
+                "profile_text,",
+                "followers_count,",
+                "profile_image",
+                ") VALUES (?,?,?,?,?,?,?);"))
+cur = db.execute("SELECT * FROM sqlite_master WHERE type='table' and name='%s'" % "followers")
+if cur.fetchone()==None:  #存在してないので作る
+  cursor.execute(sql_create)
+  db.commit()
+else:
+  cursor.execute("""DROP TABLE %s;""" % "followers")  #リセット
+  cursor.execute(sql_create)
 
 # OAuth2.0用のキーを取得する
 with open("secret.json") as f:
@@ -56,10 +88,12 @@ for u in followers_list:
       same_name = s
       break
   print("[ユーザー名] " + u['name'])
-  #for y in same_names:
+  
+  
   if u['name']==same_name['name']:
     if u['screen_name']==same_name['screen_name']:
       print('  [アカウント名] ' + u['name'] + '@' + u['screen_name'] + " " + str(u['followers_count']) + " [本物]\n")
+      cursor.execute(sql_insert_f,(u['name'], u['screen_name'], u['image_url'], 0, u['profile_text'], u['followers_count'], None)) 
     else:
       print('  [アカウント名] ' + same_name['name'] + '@' + same_name['screen_name'] + " " + str(same_name['followers_count']) + " [本物?]")
       print('  [アカウント名] ' + u['name'] + '@' + u['screen_name'] + " " + str(u['followers_count']) + " [偽物かも?]")
@@ -79,10 +113,13 @@ for u in followers_list:
       print("  -> その他:  未実装")
 
       print("なりすましアカウント率: " + str(u['false_percent']) + "%\n")
+      cursor.execute(sql_insert_f,(u['name'], u['screen_name'], u['image_url'], u['false_percent'], u['profile_text'], u['followers_count'], None))
+
   print('---------------------------------------------------')
   pass
+db.commit()
+db.close()
 #print(followers_list)
-
 
 
 
